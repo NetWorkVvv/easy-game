@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #main {
+            background: url("./imgs/timg2.jpg");
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #girl {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            top: 480px;
+            left: 350px;
+        }
+
+        #star {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            top: 0;
+            left: 350px;
+        }
+
+        .zd {
+            /* 变量名 完成一次动画的时间 重复多少次 */
+            animation: abc 0.05s 10;
+        }
+
+        @keyframes abc {
+            0% {
+                left: 0px;
+                top: 0px;
+            }
+
+            50% {
+                left: 5px;
+                top: 5px;
+            }
+
+            100% {
+                left: -5px;
+                top: -5px;
+            }
+        }
+
+        #ydiv {
+            background-color: #0f0;
+            width: 200px;
+            height: 25px;
+            float: right;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        #rdiv {
+            background-color: red;
+            width: 100%;
+            line-height: 25px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        #grade {
+            background-color: pink;
+            margin: 10px;
+            width: 100px;
+            height: 25px;
+            border-radius: 10px;
+            float: right;
+            margin: 10px 150px 10px 0;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main" class="zd">
+        <div id="ydiv">
+            <div id="rdiv">
+                100
+            </div>
+        </div>
+
+        <div id="grade">
+            0
+        </div>
+
+        <button onclick="start()" id="btn">开始</button>
+        <!-- <button onclick="pause()" id="btn1">暂停</button> -->
+        <img src="./imgs/girl.gif" alt="" id="girl">
+        <img src="./imgs/star.gif" alt="" id="star">
+        <audio src="./mp3/t.mp3" id="audio" />
+    </div>
+    <script>
+
+        // 星星
+        let s = document.querySelector("#star")
+        let audio = document.querySelector("#audio")
+        let s_top = 0
+
+        // 血量条
+        let rdiv = document.querySelector("#rdiv")
+        let blood = 100
+
+        // 分数
+        let grade = document.querySelector("#grade")
+        let grades = 0
+
+        // 人物
+        let g = document.getElementById("girl")
+        let g_left = 350
+
+        // 人物与星星 是否碰撞判断方法
+        function isTouch(a, b) {
+            let a_left = parseInt(window.getComputedStyle(a, null)["left"]); //a.style.left;
+            let a_right = a_left + parseInt(window.getComputedStyle(a, null)["width"]); //a.style.width;
+            let a_top = parseInt(window.getComputedStyle(a, null)["top"]); ////a.style.top;
+            let a_bottom = a_top + parseInt(window.getComputedStyle(a, null)["height"]); //a.style.height;
+
+            let b_left = parseInt(window.getComputedStyle(b, null)["left"]); //b.style.left;
+            let b_right = b_left + parseInt(window.getComputedStyle(b, null)["width"]); //b.style.width;
+            let b_top = parseInt(window.getComputedStyle(b, null)["top"]); ////a.style.top;
+            let b_bottom = b_top + parseInt(window.getComputedStyle(b, null)["height"]); //a.style.height;
+
+            //排除没有接触到的4种情况，就是接触到了
+            if (a_right < b_left || a_left > b_right || a_bottom < b_top || a_top > b_bottom)
+                return false;
+            else
+                return true;
+        }
+
+        // 两个物体 同高是否碰撞
+        function isTouch1(c, d) {
+            let c_left = parseInt(window.getComputedStyle(c, null)["left"]); //a.style.left;
+            let c_right = c_left + parseInt(window.getComputedStyle(c, null)["width"]); //a.style.width;
+            let c_top = parseInt(window.getComputedStyle(c, null)["top"]); ////a.style.top;
+            let c_bottom = c_top + parseInt(window.getComputedStyle(c, null)["height"]); //a.style.height;
+
+            let d_left = parseInt(window.getComputedStyle(d, null)["left"]); //b.style.left;
+            let d_right = d_left + parseInt(window.getComputedStyle(d, null)["width"]); //b.style.width;
+            let d_top = parseInt(window.getComputedStyle(d, null)["top"]); ////a.style.top;
+            let d_bottom = d_top + parseInt(window.getComputedStyle(d, null)["height"]); //a.style.height;
+
+            // 左右两边不相等
+            if (c_right < d_left || c_left > d_right) {
+                // 上下相等 = 没碰到碰到
+                if (d_top == c_bottom)
+                    return true
+            }
+
+        }
+
+
+        // 定时器
+        let timer = null
+        function start() {
+            grade.style.display = "block"
+            document.getElementById("btn").disabled = true
+            timer = window.setInterval(move, 100)
+        }
+
+
+
+        // 人物
+        window.addEventListener("keydown", function (e) {
+            switch (e.keyCode) {
+                case 37:
+                    if (g_left == -70) {
+                        g_left = 770
+                        g.style.left = g_left + "px"
+                    } else {
+                        g_left -= 20
+                        g.style.left = g_left + "px"
+                    }
+                    break;
+                case 39:
+                    if (g_left == 790) {
+                        g_left = -50
+                        g.style.left = g_left + "px"
+                    } else {
+                        g_left += 20
+                        g.style.left = g_left + "px"
+                    }
+                    break;
+            }
+
+            console.log(e.keyCode);
+        })
+
+        // 点击按钮后的操作
+        function move() {
+            s_top += 20
+            if (s_top > 600) {
+                s_top = 0
+                s.style.left = parseInt(Math.random() * 720) + 'px'
+            }
+            s.style.top = s_top + "px"
+
+            // 判断碰撞 
+            // 碰撞操作
+            if (isTouch(g, s) === true) {
+                audio.play()
+                s_top = 0
+                s.style.left = parseInt(Math.random() * 720) + 'px'
+
+                // 增加震动样式  
+                // main.className = 'zd'
+
+                // 分数
+                grades += 10
+                grade.innerHTML = grades
+
+            }
+            // 不碰撞的操作
+            if (isTouch1(g, s) === true) {
+                // 血量条
+                blood -= 20
+                rdiv.style.width = blood + "%"
+                rdiv.innerHTML = blood
+                if (blood <= 0) {
+                    window.clearInterval(timer)
+                    alert("Game Over")
+                    // 刷新页面  页面重新加载  [刷新页面不重新加载refresh()]
+                    window.location.reload()
+                }
+            }
+            // return s_top
+            // let p_top = 0
+            // function pause() {
+            //     p_top = move.s_top
+            // }
+        }
+
+
+        // 震动完毕移除样式
+        main.addEventListener('animationend', function () {
+            this.classList.remove('zd');
+        });
+
+    </script>
+</body>
+
+</html>
